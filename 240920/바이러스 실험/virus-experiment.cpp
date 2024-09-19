@@ -37,7 +37,7 @@ void solve() {
 	for (int i = 0; i < live.size(); i++) {
 		point now = live[i];
 		pq.push(now);
-		if (now.age != 5)
+		if (now.age % 5 != 0)
 			continue;
 		for (int j = 0; j < 8; j++) {
 			point next = { 0, };
