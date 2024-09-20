@@ -1,76 +1,96 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#include <set>
 
 using namespace std;
 
+struct vir {
+	int age[1021];
+	set<int> se;
+};
 struct point {
-	int y, x, age;
+	int y, x;
 };
-struct cmp {
-	bool operator() (point a, point b) {
-		return a.age > b.age;
-	}
+struct state {
+	int y, x, age, cnt;
 };
-priority_queue<point, vector<point>, cmp> pq;
 
+int dy[] = { -1,-1,0,1,1,1,0,-1 }, dx[] = { 0,1,1,1,0,-1,-1,-1 }, map[11][11], pl[11][11];
 int N, M, T;
-int add[11][11], map[11][11], dy[] = { -1,-1,0,1,1,1,0,-1 }, dx[] = { 0,1,1,1,0,-1,-1,-1 };
+vir arr[11][11];
+queue<point> q;
 
 void solve() {
-	vector<point> live, die;
-	while (!pq.empty()) {
-		point now = pq.top();
-		pq.pop();
-		if (now.age > map[now.y][now.x]){
-			die.push_back(now);
-			continue;
+	vector<state> live, die;
+
+	while (!q.empty()) {
+		point now = q.front();
+		q.pop();
+
+		set<int> tmp_set = arr[now.y][now.x].se;
+		arr[now.y][now.x].se.clear();
+		for (auto i : tmp_set) {// i는 age이고 arr[now.y][now.x].age[i]는 해당 age의 갯수
+			if (i * arr[now.y][now.x].age[i] <= map[now.y][now.x]) {
+				map[now.y][now.x] -= i * arr[now.y][now.x].age[i];
+				live.push_back({ now.y,now.x,i + 1,arr[now.y][now.x].age[i] });
+				arr[now.y][now.x].age[i] = 0;
+			}
+			else {
+				int possi = map[now.y][now.x] / i; // age갯수중 몇개 가능한지
+				map[now.y][now.x] -= possi * i;
+				die.push_back({ now.y,now.x,i,arr[now.y][now.x].age[i] - possi });
+				arr[now.y][now.x].age[i] = 0;
+				if (possi != 0)
+					live.push_back({ now.y,now.x, i ,possi });
+			}
+
 		}
-		map[now.y][now.x] -= now.age;
-		now.age++;
-		live.push_back(now);
-	}
-	for (int i = 0; i < die.size(); i++) {
-		point now = die[i];
-		map[now.y][now.x] += now.age / 2;
 	}
 	for (int i = 0; i < live.size(); i++) {
-		point now = live[i];
-		pq.push(now);
-		if (now.age % 5 != 0)
-			continue;
-		for (int j = 0; j < 8; j++) {
-			point next = { 0, };
-			next.y = now.y + dy[j];
-			next.x = now.x + dx[j];
-			if (next.y <= 0 || next.x <= 0 || next.y > N || next.x > N)
-				continue;
-			next.age = 1;
-			pq.push(next);
+		point now = { live[i].y,live[i].x };
+		arr[now.y][now.x].age[live[i].age] += live[i].cnt;
+		arr[now.y][now.x].se.insert(live[i].age);
+		q.push(now);
+
+		if (live[i].age % 5 == 0) {
+			for (int i = 0; i < 8; i++) {
+				point next = { 0, };
+				next.y = now.y + dy[i];
+				next.x = now.x + dx[i];
+				if (next.y <= 0 || next.x <= 0 || next.y > N || next.x > N)
+					continue;
+				arr[next.y][next.x].age[1]++;
+				if (arr[next.y][next.x].se.size() == 0)
+					q.push(next);
+				arr[next.y][next.x].se.insert(1);
+				M++;
+			}
 		}
 	}
-	for (int i = 1; i <= N; i++) {
-		for (int j = 1; j <= N; j++) {
-			map[i][j] += add[i][j];
-		}
+	for (int i = 0; i < die.size(); i++) {
+		point now = { die[i].y,die[i].x };
+		int num = die[i].age / 2;
+		map[now.y][now.x] += num * die[i].cnt;
+		M -= die[i].cnt;
 	}
 }
 
 void input() {
 	cin >> N >> M >> T;
-
 	for (int i = 1; i <= N; i++) {
 		for (int j = 1; j <= N; j++) {
 			map[i][j] = 5;
-			cin >> add[i][j];
+			cin >> pl[i][j];
 		}
 	}
 	for (int i = 0; i < M; i++) {
 		int tmp_y, tmp_x, tmp_age;
 		cin >> tmp_y >> tmp_x >> tmp_age;
-		pq.push({ tmp_y,tmp_x,tmp_age });
+		q.push({ tmp_y,tmp_x });
+		arr[tmp_y][tmp_x].se.insert(tmp_age);
+		arr[tmp_y][tmp_x].age[tmp_age]++;
 	}
-
 }
 
 int main() {
@@ -78,10 +98,11 @@ int main() {
 	cin.tie(0);
 
 	input();
-	for(int i = 0 ; i < T ; i++){
+	for (int i = 0; i < T; i++) {
 		solve();
 	}
-	
-	cout << pq.size();
+
+	cout << M;
+
 	return 0;
-	}
+}
