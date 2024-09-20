@@ -1,78 +1,65 @@
 #include <iostream>
-#include <queue>
+#include <map>
 #include <vector>
-#include <set>
 
 using namespace std;
 
-struct vir {
-	int age[1021];
-	set<int> se;
+struct st {
+	int val;
+	map<int, int> info;
 };
 struct point {
-	int y, x;
-};
-struct state {
 	int y, x, age, cnt;
 };
 
-int dy[] = { -1,-1,0,1,1,1,0,-1 }, dx[] = { 0,1,1,1,0,-1,-1,-1 }, map[11][11], pl[11][11];
 int N, M, T;
-vir arr[11][11];
-queue<point> q;
+int pl[11][11], dy[] = { -1,-1,0,1,1,1,0,-1 }, dx[] = { 0,1,1,1,0,-1,-1,-1 };
+st arr[11][11];
 
 void solve() {
-	vector<state> live, die;
-
-	while (!q.empty()) {
-		point now = q.front();
-		q.pop();
-
-		set<int> tmp_set = arr[now.y][now.x].se;
-		arr[now.y][now.x].se.clear();
-		for (auto i : tmp_set) {// i는 age이고 arr[now.y][now.x].age[i]는 해당 age의 갯수
-			if (i * arr[now.y][now.x].age[i] <= map[now.y][now.x]) {
-				map[now.y][now.x] -= i * arr[now.y][now.x].age[i];
-				live.push_back({ now.y,now.x,i + 1,arr[now.y][now.x].age[i] });
-				arr[now.y][now.x].age[i] = 0;
+	vector<point> live, die;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			for (auto a = arr[i][j].info.begin(); a != arr[i][j].info.end(); a++) {
+				if (a->first * a->second <= arr[i][j].val) {
+					arr[i][j].val -= a->first * a->second;
+					live.push_back({ i,j,a->first + 1 , a->second });
+				}
+				else {
+					int poss = arr[i][j].val / a->first;
+					arr[i][j].val -= a->first * poss;
+					die.push_back({ i,j,a->first, a->second - poss });
+					if (poss != 0)
+						live.push_back({ i,j,a->first + 1 , poss });
+				}
 			}
-			else {
-				int possi = map[now.y][now.x] / i; // age갯수중 몇개 가능한지
-				map[now.y][now.x] -= possi * i;
-				die.push_back({ now.y,now.x,i,arr[now.y][now.x].age[i] - possi });
-				arr[now.y][now.x].age[i] = 0;
-				if (possi != 0)
-					live.push_back({ now.y,now.x, i ,possi });
-			}
-
-		}
-	}
-	for (int i = 0; i < live.size(); i++) {
-		point now = { live[i].y,live[i].x };
-		arr[now.y][now.x].age[live[i].age] += live[i].cnt;
-		arr[now.y][now.x].se.insert(live[i].age);
-		q.push(now);
-
-		if (live[i].age % 5 == 0) {
-			for (int i = 0; i < 8; i++) {
-				point next = { 0, };
-				next.y = now.y + dy[i];
-				next.x = now.x + dx[i];
-				if (next.y <= 0 || next.x <= 0 || next.y > N || next.x > N)
-					continue;
-				arr[next.y][next.x].age[1]++;
-				if (arr[next.y][next.x].se.size() == 0)
-					q.push(next);
-				arr[next.y][next.x].se.insert(1);
-				M++;
-			}
+			arr[i][j].info.clear();
 		}
 	}
 	for (int i = 0; i < die.size(); i++) {
 		point now = { die[i].y,die[i].x };
-		int num = die[i].age / 2;
-		map[now.y][now.x] += num * die[i].cnt;
-		M -= die[i].cnt;
+		arr[now.y][now.x].val += (die[i].age / 2) * die[i].cnt;
+	}
+	for (int i = 0; i < live.size(); i++) {
+		point now = { live[i].y,live[i].x };
+		arr[now.y][now.x].info[live[i].age] += live[i].cnt;
+		if (live[i].age % 5 != 0)
+			continue;
+		for (int tc = 0; tc < live[i].cnt; tc++){
+			for (int j = 0; j < 8; j++) {
+				point next = { 0, };
+				next.y = now.y + dy[j];
+				next.x = now.x + dx[j];
+				if (next.y > N || next.x > N || next.y <= 0 || next.x <= 0)
+					continue;
+				arr[next.y][next.x].info[1]++;
+			}
+		}
+	}
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			arr[i][j].val += pl[i][j];
+		}
 	}
 }
 
@@ -80,17 +67,16 @@ void input() {
 	cin >> N >> M >> T;
 	for (int i = 1; i <= N; i++) {
 		for (int j = 1; j <= N; j++) {
-			map[i][j] = 5;
 			cin >> pl[i][j];
+			arr[i][j].val = 5;
 		}
 	}
 	for (int i = 0; i < M; i++) {
-		int tmp_y, tmp_x, tmp_age;
-		cin >> tmp_y >> tmp_x >> tmp_age;
-		q.push({ tmp_y,tmp_x });
-		arr[tmp_y][tmp_x].se.insert(tmp_age);
-		arr[tmp_y][tmp_x].age[tmp_age]++;
+		int y, x, val;
+		cin >> y >> x >> val;
+		arr[y][x].info[val]++;
 	}
+
 }
 
 int main() {
@@ -101,8 +87,16 @@ int main() {
 	for (int i = 0; i < T; i++) {
 		solve();
 	}
+	int result = 0;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			for (auto a = arr[i][j].info.begin(); a != arr[i][j].info.end(); a++)
+				result += a->second;
+		}
+	}
 
-	cout << M;
+	cout << result;
 
 	return 0;
+
 }
