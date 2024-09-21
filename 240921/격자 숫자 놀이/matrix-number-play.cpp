@@ -111,6 +111,10 @@ int main() {
 
 	input();
 	int flag = 0;
+	if (arr[st.y - 1][st.x - 1] == st.val) {
+		cout << 0;
+		return 0;
+	}
 	for (int tc = 1; tc <= 100; tc++) {
 		solve();
 		if (arr[st.y - 1][st.x - 1] == st.val) {
