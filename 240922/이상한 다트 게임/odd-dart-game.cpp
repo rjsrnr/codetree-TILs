@@ -33,7 +33,7 @@ void solve() {
 
 		int de = 1;
 		if (dir == 0) { // 시계
-			for (int i = 1; i <= N; i++) {
+			for (int i = 1; i <= M; i++) {
 				int idx = k + i;
 				if (idx > M)
 					idx -= M;
@@ -41,7 +41,7 @@ void solve() {
 			}
 		}
 		else { // 반시계
-			for (int i = 1; i <= N; i++) {
+			for (int i = 1; i <= M; i++) {
 				int idx = k + i;
 				if (idx > M)
 					idx -= M;
