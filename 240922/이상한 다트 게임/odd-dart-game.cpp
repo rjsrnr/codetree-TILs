@@ -12,7 +12,7 @@ int N, M, T;
 void result() {
 	int cnt = 0;
 	for (int i = 1; i <= N; i++) {
-		for (int j = 1; j <= N; j++) {
+		for (int j = 1; j <= M; j++) {
 			cnt += map[i][j];
 		}
 	}
@@ -28,7 +28,7 @@ void solve() {
 		if (tmp_n > N)
 			break;
 		int tmp_map[51][51] = { 0, };
-		for (int i = 1; i <= N; i++)
+		for (int i = 1; i <= M; i++)
 			tmp_map[tmp_n][i] = map[tmp_n][i];
 
 		int de = 1;
@@ -53,7 +53,7 @@ void solve() {
 	int flag = 0;
 	int visited[51][51] = { 0, };
 	for (int i = 1; i <= N; i++) {
-		for (int j = 1; j <= N; j++) {
+		for (int j = 1; j <= M; j++) {
 			point now = { i,j };
 			if (map[now.y][now.x] == 0)
 				continue;
@@ -65,8 +65,8 @@ void solve() {
 				if (next.y <= 0 || next.y > N)
 					continue;
 				if (next.x <= 0)
-					next.x = N;
-				if (next.x > N)
+					next.x = M;
+				if (next.x > M)
 					next.x = 1;
 				if (map[next.y][next.x] == map[now.y][now.x])
 					visited[now.y][now.x] = visited[now.y][now.x] = 1, flag = 1;
@@ -74,7 +74,7 @@ void solve() {
 		}
 	}
 	for (int i = 1; i <= N; i++) {
-		for (int j = 1; j <= N; j++) {
+		for (int j = 1; j <= M; j++) {
 			if (visited[i][j] == 1)
 				map[i][j] = 0;
 		}
@@ -83,7 +83,7 @@ void solve() {
 		return;
 	int tmp_sum = 0, tmp_cnt = 0;
 	for (int i = 1; i <= N; i++) {
-		for (int j = 1; j <= N; j++) {
+		for (int j = 1; j <= M; j++) {
 			if (map[i][j] == 0)
 				continue;
 			tmp_sum += map[i][j], tmp_cnt++;
@@ -91,7 +91,7 @@ void solve() {
 	}
 	int tmp_avg = tmp_sum / tmp_cnt;
 	for (int i = 1; i <= N; i++) {
-		for (int j = 1; j <= N; j++) {
+		for (int j = 1; j <= M; j++) {
 			if (map[i][j] == 0)
 				continue;
 			if (map[i][j] > tmp_avg)
