@@ -6,14 +6,14 @@ using namespace std;
 struct point {
     int y, x;
 };
-int red[6][6], yel[6][6];
+int red[4][4], yel[4][4];
 int T, result;
-int map[6][6];
+int map[4][4];
 
 void check_yel() {
     int idx = 3;
     while (1) {
-        if (idx <= 0)
+        if (idx < 0)
             break;
         if (yel[idx][0] == 0 || yel[idx][1] == 0 || yel[idx][2] == 0 || yel[idx][3] == 0) {
             idx--;
@@ -34,7 +34,7 @@ void check_yel() {
 void check_red() {
     int idx = 3;
     while (1) {
-        if (idx <= 0)
+        if (idx < 0)
             break;
         if (red[0][idx] == 0 || red[1][idx] == 0 || red[2][idx] == 0 || red[3][idx] == 0) {
             idx--;
@@ -75,116 +75,150 @@ void mv_re() {
 }
 
 void ye(point input, int type) {
-    
-    point now = { 0,input.x };
-    if (type == 1) {
+    if (type == 1){
+        point now = { 0,input.x };
         if (yel[now.y][now.x] == 1)
             mv_ye();
         while (1) {
             point next = now;
             next.y = now.y + 1, next.x = now.x;
-            
-            if (yel[next.y][next.x] == 1 || next.y >= 4)
+
+            if (next.y >= 4 || yel[next.y][next.x] == 1)
                 break;
             now = next;
         }
         yel[now.y][now.x] = 1;
     }
     else if (type == 2) {
-        point now2 = { now.y, now.x + 1 };
+        point now1 = { 0,input.x };
+        point now2 = { now1.y, now1.x + 1 };
         while (1) {
             int flag = 0;
-            if (yel[now.y][now.x] == 1 || yel[now2.y][now2.x] == 1)
+            if (yel[now1.y][now1.x] == 1 || yel[now2.y][now2.x] == 1)
                 mv_ye(), flag = 1;
             if (flag == 0)
                 break;
         }
         while (1) {
-            point next1 = now, next2 = now2;
-            next1.y = now.y + 1, next2.y = now2.y + 1;
-            if (yel[next1.y][next1.x] == 1 || yel[next2.y][next2.x] == 1 || next1.y >= 4 || next2.y >= 4)
+            point next1 = now1, next2 = now2;
+            next1.y = now1.y + 1, next2.y = now2.y + 1;
+            if (next1.y >= 4 || next2.y >= 4 || yel[next1.y][next1.x] == 1 || yel[next2.y][next2.x] == 1)
                 break;
-            now = next1, now2 = next2;
+            now1 = next1, now2 = next2;
         }
-        yel[now.y][now.x] = yel[now2.y][now2.x] = 1;
+        yel[now1.y][now1.x] = yel[now2.y][now2.x] = 1;
 
     }
     else if (type == 3) {
-        point now2 = { now.y + 1, now.x };
+        point now1 = { 0,input.x };
+        point now2 = { 0,input.x };
         while (1) {
             int flag = 0;
-            if (yel[now.y][now.x] == 1 || yel[now2.y][now2.x] == 1)
+            if (yel[now2.y][now2.x] == 1)
                 mv_ye(), flag = 1;
             if (flag == 0)
                 break;
         }
         while (1) {
-            point next1 = now, next2 = now2;
-            next1.y = now.y + 1, next2.y = now2.y + 1;
-            if (yel[next1.y][next2.y] == 1 || yel[next2.y][next2.x] == 1 || next1.y >= 4 || next2.y >= 4)
+            point next2 = now2;
+             next2.y = now2.y + 1;
+            if (next2.y >= 4 || yel[next2.y][next2.x] == 1 )
                 break;
-            now = next1, now2 = next2;
+            now2 = next2;
         }
-        yel[now.y][now.x] = yel[now2.y][now2.x] = 1;
+        yel[now2.y][now2.x] = 1;
+        check_yel();
+        while (1) {
+            int flag = 0;
+            if (yel[now1.y][now1.x] == 1)
+                mv_ye(), flag = 1;
+            if (flag == 0)
+                break;
+        }
+        while (1) {
+            point next1 = now1;
+            next1.y = now1.y + 1;
+            if (next1.y >= 4 || yel[next1.y][next1.x] == 1 )
+                break;
+            now1 = next1;
+        }
+        yel[now1.y][now1.x] = 1;
     }
     check_yel();
+    int de = 1;
 }
 
 void re(point input, int type) {
-    point now = { input.y, 0 };
+    
     if (type == 1) {
+        point now = { input.y, 0 };
         if (red[now.y][now.x] == 1)
             mv_re();
         while (1) {
             point next = now;
             next.y = now.y, next.x = now.x + 1;
-            if (red[next.y][next.x] == 1 || next.x >= 4)
+            if (next.x >= 4 || red[next.y][next.x] == 1)
                 break;
             now = next;
         }
         red[now.y][now.x] = 1;
     }
     else if (type == 2) {
-        point now2 = { now.y, now.x + 1 };
-
+        point now1 = { input.y ,0 };
+        point now2 = { input.y ,0 };
         while (1) {
             int flag = 0;
-            if (red[now.y][now.x] == 1 || red[now2.y][now2.x] == 1)
+            if (red[now2.y][now2.x] == 1)
                 mv_re(), flag = 1;
             if (flag == 0)
                 break;
         }
-
         while (1) {
-            point next1 = now, next2 = now2;
-            next1.x = now.x + 1, next2.x = now2.x + 1;
-            if (red[next1.y][next1.x] == 1 || red[next2.y][next2.x] == 1 || next1.x >= 4 || next2.x >= 4)
+            point next2 = now2;
+            next2.x = now2.x + 1;
+            if (next2.x >= 4 || red[next2.y][next2.x] == 1)
                 break;
-            now = next1, now2 = next2;
+            now2 = next2;
         }
-        red[now.y][now.x] = red[now2.y][now2.x] = 1;
-
+        red[now2.y][now2.x] = 1;
+        check_red();
+        while (1) {
+            int flag = 0;
+            if (red[now1.y][now1.x] == 1)
+                mv_re(), flag = 1;
+            if (flag == 0)
+                break;
+        }
+        while (1) {
+            point next1 = now1;
+            next1.x = now1.x + 1;
+            if (next1.x >= 4 || red[next1.y][next1.x] == 1)
+                break;
+            now1 = next1;
+        }
+        red[now1.y][now1.x] = 1;
     }
     else if (type == 3) {
-        point now2 = { now.y + 1 , now.x };
+        point now1 = { input.y, 0 };
+        point now2 = { now1.y + 1 , now1.x };
         while (1) {
             int flag = 0;
-            if (red[now.y][now.x] == 1 || red[now2.y][now2.x] == 1)
+            if (red[now1.y][now1.x] == 1 || red[now2.y][now2.x] == 1)
                 mv_re(), flag = 1;
             if (flag == 0)
                 break;
         }
         while (1) {
-            point next1 = now, next2 = now2;
-            next1.x = now.x + 1, next2.x = now.y + 1;
-            if (red[next1.y][next2.y] == 1 || red[next2.y][next2.x] == 1 || next1.x >= 4 || next2.x >= 4)
+            point next1 = now1, next2 = now2;
+            next1.x = now1.x + 1, next2.x = now2.x + 1;
+            if (next1.x >= 4 || next2.x >= 4 || red[next1.y][next1.x] == 1 || red[next2.y][next2.x] == 1)
                 break;
-            now = next1, now2 = next2;
+            now1 = next1, now2 = next2;
         }
-        red[now.y][now.x] = red[now2.y][now2.x] = 1;
+        red[now1.y][now1.x] = red[now2.y][now2.x] = 1;
     }
     check_red();
-
+    int de = 1;
 }
 
 int main() {
@@ -204,6 +238,7 @@ int main() {
         else if (type == 3)
             map[now.y + 1][now.x] = 1;
 
+        int de = 1;
 
         ye(now, type);
         re(now, type);
@@ -226,7 +261,7 @@ int main() {
                 result2++;
         }
     }
-    
+
     cout << result << '\n' << result2;
 
     return 0;
