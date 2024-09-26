@@ -35,6 +35,7 @@ void mv(int idx, int di) {
         }
         else {
             arr[idx].state = 0;
+            arr[idx].y = next.y, arr[idx].x = next.x;
             rcnt--;
             return;
         }
@@ -50,6 +51,7 @@ void mv(int idx, int di) {
             map[next.y][next.x].k = K;
             arr[idx].y = next.y, arr[idx].x = next.x;
             arr[idx].dir = tmp_dir;
+            return;
         }
 
     }
@@ -72,7 +74,7 @@ void input() {
             if (map[i][j].id == 0)
                 continue;
             arr[map[i][j].id].y = i, arr[map[i][j].id].x = j, arr[map[i][j].id].state = 1;
-            map[i][j].k = K;
+            map[i][j].k = K - 1;
         }
     }
     for (int i = 1; i <= M; i++) {
@@ -93,8 +95,9 @@ int main() {
 
     input();
 
-    for (int tc = 0; tc <= 1000; tc++) {
-        if (tc == 1000) {
+    for (int tc = 1; tc <= 1001; tc++) {
+        solve();
+        if (tc == 1001) {
             cout << -1;
             return 0;
         }
@@ -106,14 +109,17 @@ int main() {
             for (int j = 0; j < N; j++) {
                 if (map[i][j].k != 0){
                     map[i][j].k--;
-                    if (map[i][j].k == 0)
+                    if (map[i][j].k == 0){
                         map[i][j].id = 0;
+                    }
                 }
-                if (map[i][j].tmp_id != 0)
+                if (map[i][j].tmp_id != 0){
                     map[i][j].id = map[i][j].tmp_id, map[i][j].tmp_id = 0;
+                }
+
             }
         }
-        solve();
+        
     }
 
     return 0;
